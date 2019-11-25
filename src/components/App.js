@@ -15,24 +15,34 @@ class App extends React.Component {
     }
   }
 
-  //Callback to update state.filters.type
   onChangeType = (event) => {
-    console.log("changing type...")
     this.setState( {
-      filters: event.currentTarget.value
+      filters: {
+        type: event.currentTarget.value
+      }
     } )
   }
 
   onFindPetsClick = () => {
-    //if state.filters === all
-      //fetch to /api/pets
-    //if state.filters === `something else`
-      //fetch to /api/pets/?type=${this.state.filters.type}
-    //update state.pets with the response
-
     let url = (this.state.filters.type === "all") ? "/api/pets" : `/api/pets?type=${this.state.filters.type}`
-    debugger
-    console.log(url)
+    
+    fetch(url)
+      .then( resp => resp.json() )
+      .then( petArray => {
+        this.setState( {
+          pets: petArray
+        } )
+      } )
+  }
+
+  onAdoptPet = (id) => {
+    //find pets id in the state.pets array, change isAdopted to true
+    let adoptedPet = this.state.pets.find( pet => pet.id === id )
+    adoptedPet.isAdopted = true
+    
+    this.setState( {
+      pets: [...this.state.pets, adoptedPet]
+    } )
   }
 
   render() {
@@ -50,7 +60,10 @@ class App extends React.Component {
               />
             </div>
             <div className="twelve wide column">
-              <PetBrowser />
+              <PetBrowser 
+                pets={this.state.pets}
+                onAdoptPet={this.onAdoptPet}
+              />
             </div>
           </div>
         </div>
